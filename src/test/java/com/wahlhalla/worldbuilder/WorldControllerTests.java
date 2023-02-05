@@ -2,9 +2,11 @@ package com.wahlhalla.worldbuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.hamcrest.Matchers.*;
@@ -22,7 +24,9 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
+
 import com.wahlhalla.worldbuilder.user.UserRepository;
+import com.wahlhalla.worldbuilder.util.Util;
 import com.wahlhalla.worldbuilder.world.World;
 import com.wahlhalla.worldbuilder.world.WorldController;
 import com.wahlhalla.worldbuilder.world.WorldRepository;
@@ -93,5 +97,136 @@ class WorldControllerTests {
       mvc.perform(get("/api/world")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is(403));
+  }
+
+  @WithUserDetails(value = "user")
+  @Test
+  public void givenWorld_whenGetWorld_thenStatus200()
+    throws Exception {
+      World world = new World("World Name", "World Description", false);
+
+      worldController.create(world);
+
+      mvc.perform(get("/api/world/" + world.getId())
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content()
+        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("name", is("World Name")))
+        .andExpect(jsonPath("description", is("World Description")))
+        .andExpect(jsonPath("isPrivate", is(false)))
+        .andExpect(jsonPath("user.id", is(2)));
+  }
+
+  @WithUserDetails(value = "user")
+  @Test
+  public void givenPrivateWorld_whenGetPublicWorlds_thenEmpty()
+    throws Exception {
+      World world = new World("World Name", "World Description", true);
+    
+      worldController.create(world);
+
+      mvc.perform(get("/api/world/public")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.id").doesNotExist());
+  }
+
+  @WithUserDetails(value = "admin")
+  @Test
+  public void givenWorld_whenGetWorldByUser_thenStatus200()
+    throws Exception {
+      World world = new World("World Name", "World Description", false);
+
+      worldController.create(world);
+
+      mvc.perform(get("/api/world/user/1")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content()
+        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$[0].name", is("World Name")))
+        .andExpect(jsonPath("$[0].description", is("World Description")))
+        .andExpect(jsonPath("$[0].isPrivate", is(false)))
+        .andExpect(jsonPath("$[0].user.id", is(1)));
+  }
+
+  @WithUserDetails(value = "admin")
+  @Test
+  public void givenWorld_whenGetWorldByName_thenStatus200()
+    throws Exception {
+      World world = new World("World Name", "World Description", false);
+
+      worldController.create(world);
+
+      mvc.perform(get("/api/world/name/name")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content()
+        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$[0].name", is("World Name")))
+        .andExpect(jsonPath("$[0].description", is("World Description")))
+        .andExpect(jsonPath("$[0].isPrivate", is(false)))
+        .andExpect(jsonPath("$[0].user.id", is(1)));
+  }
+
+  @WithUserDetails(value = "admin")
+  @Test
+  public void givenWorld_whenPostWorld_thenStatus201()
+    throws Exception {
+      World world = new World("World Name", "World Description", false);
+
+      mvc.perform(post("/api/world")
+        .content(Util.asJsonString(world))
+        .contentType(MediaType.APPLICATION_JSON)
+	      .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("name", is("World Name")))
+        .andExpect(jsonPath("description", is("World Description")))
+        .andExpect(jsonPath("isPrivate", is(false)))
+        .andExpect(jsonPath("user.id", is(1)));
+        assertThat(worldRepository.count()).isEqualTo(1);
+  }
+
+  @WithUserDetails(value = "admin")
+  @Test
+  public void givenWorld_whenDeleteWorld_thenStatus200()
+    throws Exception {
+      World world = new World("World Name", "World Description", false);
+      worldController.create(world);
+
+      mvc.perform(delete("/api/world/" + world.getId())
+        .contentType(MediaType.APPLICATION_JSON)
+	      .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+        assertThat(worldRepository.count()).isEqualTo(0);
+  }
+
+  @WithUserDetails(value = "admin")
+  @Test
+  public void whenDeletingWorlds_thenEverythingUnderItShouldBeDeleted() {
+    //TODO
+  }
+
+  @WithUserDetails(value = "admin")
+  @Test
+  public void givenWorld_whenPutWorld_thenStatus200()
+    throws Exception {
+      World world = new World("World Name", "World Description", false);
+      
+      worldController.create(world);
+
+      world.setName("New Name");
+      world.setDescription("New Description");
+      world.setIsPrivate(true);
+
+      mvc.perform(put("/api/world/" + world.getId())
+        .content(Util.asJsonString(world))
+        .contentType(MediaType.APPLICATION_JSON)
+	      .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("name", is("New Name")))
+        .andExpect(jsonPath("description", is("New Description")))
+        .andExpect(jsonPath("isPrivate", is(true)))
+        .andExpect(jsonPath("user.id", is(1)));
   }
 }
