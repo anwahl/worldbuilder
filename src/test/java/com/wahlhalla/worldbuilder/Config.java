@@ -15,15 +15,7 @@ import com.wahlhalla.worldbuilder.user.impl.UserDetailsImpl;
 
 @Configuration
 public class Config {
-    /*@Bean
-    public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
-       /* UserDetails user = User.withUsername("user")
-            .password(passwordEncoder.encode("secret"))
-            .roles("USER")
-            .build();
-        return new InMemoryUserDetailsManager(user);
-    }*/
-
+    
     @Bean
     @Primary
     public UserDetailsService userDetailsService() {

@@ -24,7 +24,7 @@ public class World {
     @Column(name="DESCRIPTION", length=1024, nullable=false, unique=true)
     private String description;
     @ManyToOne
-    @JsonIgnoreProperties({"username", "email", "password", "roles"})
+    @JsonIgnoreProperties({"email", "password", "roles"})
     @JoinColumn(name="USER_ID", nullable=false, updatable = false)
     private User user;
     @Column(name="IS_PRIVATE", nullable = false, unique = false)

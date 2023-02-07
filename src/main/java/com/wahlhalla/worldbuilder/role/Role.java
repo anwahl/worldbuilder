@@ -19,7 +19,7 @@ public class Role {
     
     @Enumerated(EnumType.STRING)
     @Column(name="NAME", length=16, nullable=false, unique=false,
-            columnDefinition = "ENUM('USER','ADMIN','MODERATOR')")
+            columnDefinition = "ENUM('ROLE_USER','ROLE_ADMIN','ROLE_MODERATOR')")
 	private ERole name;
 
 	public Role() {
