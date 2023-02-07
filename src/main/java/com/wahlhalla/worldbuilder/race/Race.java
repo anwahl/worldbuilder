@@ -10,19 +10,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name="RACE")
+@Table(name="RACE", uniqueConstraints = { @UniqueConstraint(columnNames = { "NAME", "WORLD_ID" }) })
 public class Race {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private long id;
-    @Column(name="NAME", length=64, nullable=false, unique=true)
+    @Column(name="NAME", length=64, nullable=false)
     private String name;
-    @Column(name="DESCRIPTION", length=1024, nullable=false, unique=true)
+    @Column(name="DESCRIPTION", length=1024, nullable=false)
     private String description;
-    @Column(name="TRAIT", length=256, nullable=true, unique=false)
+    @Column(name="TRAIT", length=256, nullable=true)
     private String trait;
     @ManyToOne
     @JoinColumn(name="WORLD_ID", nullable=false)

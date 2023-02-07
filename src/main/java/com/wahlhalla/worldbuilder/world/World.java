@@ -11,17 +11,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name="WORLD")
+@Table(name="WORLD", uniqueConstraints = { @UniqueConstraint(columnNames = { "NAME", "USER_ID" }) })
 public class World {
     
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private long id;
-    @Column(name="NAME", length=64, nullable=false, unique=true)
+    @Column(name="NAME", length=64, nullable=false)
     private String name;
-    @Column(name="DESCRIPTION", length=1024, nullable=false, unique=true)
+    @Column(name="DESCRIPTION")
     private String description;
     @ManyToOne
     @JsonIgnoreProperties({"email", "password", "roles"})
