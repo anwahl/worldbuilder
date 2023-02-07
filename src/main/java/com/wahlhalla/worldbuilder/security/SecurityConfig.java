@@ -63,6 +63,7 @@ public class SecurityConfig {
         .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
         .authorizeHttpRequests().requestMatchers("/").permitAll().and()
+        .authorizeHttpRequests().requestMatchers("/error").permitAll().and()
         .authorizeHttpRequests().requestMatchers("/api/auth/*").permitAll()
         .anyRequest().authenticated();
     

@@ -24,6 +24,8 @@ public class CustomErrorController implements ErrorController {
                 return "{\"error\": \"There was in internal server error. Contact a server administrator if the problem persists.\"}";
             } else if(statusCode == HttpStatus.UNAUTHORIZED.value()) {
                 return "{\"error\": \"You do not have sufficient privileges to access this resource.\"}";
+            } else {
+                return "{\"error\": \"" + statusCode + " Error. \"}";
             }
         }
         return "Eh?";
