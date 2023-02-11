@@ -49,7 +49,7 @@ public class WorldController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or @checkUser.byUserId(authentication, #userId)")
     public List<World> findByUserId(@PathVariable Long userId) {
         return this.worldRepository.findByUserId(userId);
     }
