@@ -1,5 +1,6 @@
 package com.wahlhalla.worldbuilder.race;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wahlhalla.worldbuilder.world.World;
 
 import jakarta.persistence.Column;
@@ -26,6 +27,7 @@ public class Race {
     @Column(name="TRAIT", length=256, nullable=true)
     private String trait;
     @ManyToOne
+    @JsonIgnoreProperties({"races"})
     @JoinColumn(name="WORLD_ID", nullable=false)
     private World world;
 

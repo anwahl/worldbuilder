@@ -1,10 +1,13 @@
 package com.wahlhalla.worldbuilder.user;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.wahlhalla.worldbuilder.role.Role;
+import com.wahlhalla.worldbuilder.world.World;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -32,11 +36,14 @@ public class User {
     @Column(name="PASSWORD", length=64, nullable=false, unique=false)
 	private String password;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name="USER_ROLES",
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinTable(name="USER_ROLES", 
                joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName="ID"),
                inverseJoinColumns = @JoinColumn(name = "ROLE_ID", referencedColumnName="ID"))
 	private Set<Role> roles = new HashSet<>();
+
+	@OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "user")
+    private Set<World> worlds;
 
 	public User() {
 	}
@@ -85,5 +92,13 @@ public class User {
 
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
+	}
+
+	public Set<World> getWorlds() {
+		return worlds;
+	}
+
+	public void setWorlds(Set<World> worlds) {
+		this.worlds = worlds;
 	}
 }

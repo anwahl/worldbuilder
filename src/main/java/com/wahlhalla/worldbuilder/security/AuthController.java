@@ -9,13 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,13 +27,17 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wahlhalla.worldbuilder.role.ERole;
 import com.wahlhalla.worldbuilder.role.Role;
 import com.wahlhalla.worldbuilder.role.RoleRepository;
+import com.wahlhalla.worldbuilder.security.payload.request.EmailChangeRequest;
 import com.wahlhalla.worldbuilder.security.payload.request.LoginRequest;
+import com.wahlhalla.worldbuilder.security.payload.request.PasswordChangeRequest;
 import com.wahlhalla.worldbuilder.security.payload.request.SignupRequest;
 import com.wahlhalla.worldbuilder.security.payload.response.MessageResponse;
 import com.wahlhalla.worldbuilder.security.payload.response.UserInfoResponse;
 import com.wahlhalla.worldbuilder.user.User;
 import com.wahlhalla.worldbuilder.user.UserRepository;
 import com.wahlhalla.worldbuilder.user.impl.UserDetailsImpl;
+import com.wahlhalla.worldbuilder.util.exceptions.EntityNotFoundException;
+import com.wahlhalla.worldbuilder.world.WorldRepository;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -39,6 +47,9 @@ public class AuthController {
 
 	@Autowired
 	UserRepository userRepository;
+
+	@Autowired
+	WorldRepository worldRepository;
 
 	@Autowired
 	RoleRepository roleRepository;
@@ -71,6 +82,30 @@ public class AuthController {
 									   userDetails.getEmail(),
 									   roles));
 	  }
+
+	@PutMapping("/changePassword/{userId}")
+	@PreAuthorize("hasRole('ADMIN') or @checkUser.byUserId(authentication, #userId)")
+	public ResponseEntity<?> changePassword(@Validated @RequestBody PasswordChangeRequest passwordChangeRequest, @PathVariable Long userId) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication.getPrincipal().getClass().equals(UserDetailsImpl.class)) {
+			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+			try {
+				User user = this.userRepository.findById(userDetails.getId()).get();
+
+				if (encoder.matches(passwordChangeRequest.getOldPassword(), user.getPassword())) {
+					user.setPassword(encoder.encode(passwordChangeRequest.getNewPassword()));
+					this.userRepository.save(user);
+					return ResponseEntity.ok(new MessageResponse("Password changed successfully!"));
+				} else {
+					return ResponseEntity.badRequest().body(new MessageResponse("Password is incorrect!"));
+				}
+			} catch (EntityNotFoundException e) {
+				return ResponseEntity.badRequest().body(new MessageResponse("User not found! " + e));
+			}
+		} else {
+			return ResponseEntity.badRequest().body(new MessageResponse("User was not valid!"));
+		}
+	}
 
 	@PostMapping("/signup")
 	public ResponseEntity<?> registerUser(@Validated @RequestBody SignupRequest signUpRequest) {
@@ -132,5 +167,32 @@ public class AuthController {
 		ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
 		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
 			.body(new MessageResponse("You've been signed out!"));
+	}
+
+	@DeleteMapping("/deleteUser/{userId}")
+	@PreAuthorize("hasRole('ADMIN') or @checkUser.byUserId(authentication, #userId)")
+	public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
+		User user = this.userRepository.findById(userId).get();
+		this.userRepository.delete(user);
+
+		ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
+		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
+			.body(new MessageResponse("You've been signed out!"));
+	}
+
+	@PutMapping("/changeEmail/{userId}")
+	@PreAuthorize("hasRole('ADMIN') or @checkUser.byUserId(authentication, #userId)")
+	public ResponseEntity<?> changeEmail(@Validated @RequestBody EmailChangeRequest emailChangeRequest, @PathVariable Long userId) {
+		if (userRepository.existsByEmail(emailChangeRequest.getNewEmail())) {
+			return ResponseEntity
+					.badRequest()
+					.body(new MessageResponse("Error: Email is already in use!"));
+		} 
+
+		User user = this.userRepository.findById(userId).get();
+		user.setEmail(emailChangeRequest.getNewEmail());
+		this.userRepository.save(user);
+
+		return ResponseEntity.ok(new MessageResponse("Email changed successfully!"));
 	}
 }

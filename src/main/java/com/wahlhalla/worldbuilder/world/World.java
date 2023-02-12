@@ -1,8 +1,14 @@
 package com.wahlhalla.worldbuilder.world;
 
+import java.util.Set;
+
+import org.hibernate.annotations.Cascade;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wahlhalla.worldbuilder.race.Race;
 import com.wahlhalla.worldbuilder.user.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -25,11 +32,14 @@ public class World {
     @Column(name="DESCRIPTION")
     private String description;
     @ManyToOne
-    @JsonIgnoreProperties({"email", "password", "roles"})
+    @JsonIgnoreProperties({"email", "password", "roles", "worlds"})
     @JoinColumn(name="USER_ID", nullable=false, updatable = false)
+    @Cascade({ org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN })
     private User user;
     @Column(name="IS_PRIVATE", nullable = false, unique = false)
     private Boolean isPrivate;
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<Race> races;
 
     public World () {
 
@@ -87,6 +97,14 @@ public class World {
     public void setIsPrivate(final Boolean isPrivate) {
         this.isPrivate = isPrivate;
     }
+
+	public Set<Race> getRaces() {
+		return races;
+	}
+
+	public void setRaces(Set<Race> races) {
+		this.races = races;
+	}
 
     @Override
     public String toString() {
