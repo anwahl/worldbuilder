@@ -61,7 +61,7 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.cors().and().csrf().disable()
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-        .authorizeHttpRequests().requestMatchers("/", "/**/public","/error","/favicon.ico","/api/auth/signup").permitAll()
+        .authorizeHttpRequests().requestMatchers("/", "/**public","/error","/favicon.ico","/api/auth/signup").permitAll()
         .anyRequest().authenticated().and()
       .formLogin() 
          .loginPage("/api/auth/signin") 
