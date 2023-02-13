@@ -1,7 +1,6 @@
 package com.wahlhalla.worldbuilder.user;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import com.wahlhalla.worldbuilder.role.Role;

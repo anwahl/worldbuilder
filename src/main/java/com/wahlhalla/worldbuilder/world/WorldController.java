@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityIdMismatchException;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityNotFoundException;
 
-
 @RestController
 @RequestMapping("/api/world")
 public class WorldController {

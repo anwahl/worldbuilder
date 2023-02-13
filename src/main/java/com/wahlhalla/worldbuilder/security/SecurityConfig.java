@@ -24,7 +24,7 @@ import com.wahlhalla.worldbuilder.user.impl.UserDetailsServiceImpl;
 public class SecurityConfig {
   
   @Value("${app.audience}")
-  private String audience;
+  private String[] audience;
 
   @Autowired
   UserDetailsServiceImpl userDetailsService;
@@ -60,18 +60,22 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.cors().and().csrf().disable()
-        .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-        .authorizeHttpRequests().requestMatchers("/").permitAll().and()
-        .authorizeHttpRequests().requestMatchers("/api/*/public").permitAll().and()
-        .authorizeHttpRequests().requestMatchers("/error").permitAll().and()
-        .authorizeHttpRequests().requestMatchers("/api/auth/*").permitAll()
-        .anyRequest().authenticated();
+        .authorizeHttpRequests().requestMatchers("/", "/**/public","/error","/favicon.ico","/api/auth/signup").permitAll()
+        .anyRequest().authenticated().and()
+      .formLogin() 
+         .loginPage("/api/auth/signin") 
+         .permitAll()
+         .and()
+      .logout()
+        .logoutUrl("/api/auth/signout")
+        .permitAll().and()
+      .exceptionHandling().authenticationEntryPoint(unauthorizedHandler);
     
     http.authenticationProvider(authenticationProvider());
 
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-    
+
     return http.build();
   }
 
@@ -84,7 +88,8 @@ public class SecurityConfig {
               .allowedOrigins(audience)
               .allowCredentials(true)
               .allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH")
-              .allowedHeaders("*");
+              .allowedHeaders("*")
+              .exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials", "Authorization");
           }
       };
   }
