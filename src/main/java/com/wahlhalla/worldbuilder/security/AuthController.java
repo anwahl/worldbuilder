@@ -1,11 +1,17 @@
 package com.wahlhalla.worldbuilder.security;
 
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +29,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.wahlhalla.worldbuilder.role.ERole;
 import com.wahlhalla.worldbuilder.role.Role;
 import com.wahlhalla.worldbuilder.role.RoleRepository;
+import com.wahlhalla.worldbuilder.security.PasswordReset.PasswordResetToken;
+import com.wahlhalla.worldbuilder.security.PasswordReset.PasswordResetTokenRepository;
 import com.wahlhalla.worldbuilder.security.payload.request.EmailChangeRequest;
 import com.wahlhalla.worldbuilder.security.payload.request.LoginRequest;
 import com.wahlhalla.worldbuilder.security.payload.request.PasswordChangeRequest;
@@ -36,8 +43,14 @@ import com.wahlhalla.worldbuilder.security.payload.response.UserInfoResponse;
 import com.wahlhalla.worldbuilder.user.User;
 import com.wahlhalla.worldbuilder.user.UserRepository;
 import com.wahlhalla.worldbuilder.user.impl.UserDetailsImpl;
+import com.wahlhalla.worldbuilder.util.email.EmailService;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityNotFoundException;
 import com.wahlhalla.worldbuilder.world.WorldRepository;
+
+import jakarta.mail.MessagingException;
+
+import com.wahlhalla.worldbuilder.security.payload.response.GenericResponse;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -47,6 +60,9 @@ public class AuthController {
 
 	@Autowired
 	UserRepository userRepository;
+
+	@Autowired
+	PasswordResetTokenRepository passwordResetTokenRepository;
 
 	@Autowired
 	WorldRepository worldRepository;
@@ -59,6 +75,15 @@ public class AuthController {
 
 	@Autowired
 	JwtUtils jwtUtils;
+
+	@Autowired
+    MessageSource messages;
+
+	@Autowired
+	EmailService emailService;
+	
+	@Value("${app.audience}")
+	private String[] audience;
 
 	@PostMapping("/signin")
 	public ResponseEntity<?> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) {
@@ -112,13 +137,13 @@ public class AuthController {
 		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
 			return ResponseEntity
 					.badRequest()
-					.body(new MessageResponse("Error: Username is already taken!"));
+					.body(new MessageResponse("Username is already taken!"));
 		}
 
 		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
 			return ResponseEntity
 					.badRequest()
-					.body(new MessageResponse("Error: Email is already in use!"));
+					.body(new MessageResponse("Email is already in use!"));
 		}
 
 		// Create new user's account
@@ -131,26 +156,26 @@ public class AuthController {
 
 		if (strRoles == null) {
 			Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-					.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+					.orElseThrow(() -> new RuntimeException("Role is not found."));
 			roles.add(userRole);
 		} else {
 			strRoles.forEach(role -> {
 				switch (role) {
 				case "ADMIN":
 					Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+							.orElseThrow(() -> new RuntimeException("Role is not found."));
 					roles.add(adminRole);
 
 					break;
 				case "MODERATOR":
 					Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
-							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+							.orElseThrow(() -> new RuntimeException("Role is not found."));
 					roles.add(modRole);
 
 					break;
 				default:
 					Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+							.orElseThrow(() -> new RuntimeException("Role is not found."));
 					roles.add(userRole);
 				}
 			});
@@ -186,7 +211,7 @@ public class AuthController {
 		if (userRepository.existsByEmail(emailChangeRequest.getNewEmail())) {
 			return ResponseEntity
 					.badRequest()
-					.body(new MessageResponse("Error: Email is already in use!"));
+					.body(new MessageResponse("Email is already in use!"));
 		} 
 
 		User user = this.userRepository.findById(userId).get();
@@ -194,5 +219,59 @@ public class AuthController {
 		this.userRepository.save(user);
 
 		return ResponseEntity.ok(new MessageResponse("Email changed successfully!"));
+	}
+
+	@PostMapping("/resetPassword/{email}")
+	public GenericResponse resetPassword(@PathVariable("email") String email) throws MessagingException {
+		try {
+			User user = userRepository.findByEmail(email).get();
+			String token = UUID.randomUUID().toString();
+			PasswordResetToken myToken = new PasswordResetToken(token, user);
+			passwordResetTokenRepository.save(myToken);
+			
+			String url = audience[0] + "/resetPassword?token=" + token;
+			String message = messages.getMessage("message.resetPassword", null, null);
+			this.emailService.sendMail("Reset Password", message + " \r\n" + url, user.getEmail());
+			
+			return new GenericResponse(
+				messages.getMessage("message.resetPasswordEmail", null, null));
+		} catch (NoSuchElementException e) {
+			throw new NoSuchElementException("{\"error\":\""+messages.getMessage("user.notFound", null, null)+ "\"}");
+		}
+	}
+
+	@PostMapping("/savePassword/{token}")
+	public GenericResponse savePassword(@PathVariable("token") String token, @RequestBody PasswordChangeRequest passwordChangeRequest) {
+		String result = this.validatePasswordResetToken(token);
+		if(result != null) {
+			return new GenericResponse(messages.getMessage(
+				"auth.message." + result, null, null));
+		}
+		try {
+			User user = Optional.ofNullable(this.passwordResetTokenRepository.findByToken(token).getUser()).get();
+			user.setPassword(encoder.encode(passwordChangeRequest.getNewPassword()));
+			this.userRepository.save(user);
+			return new GenericResponse(messages.getMessage(
+				"message.resetPasswordSuc", null, null));
+		} catch (EntityNotFoundException e) {
+			return new GenericResponse(messages.getMessage(
+				"auth.message.invalid", null, null));
+		}
+	}
+
+	private String validatePasswordResetToken(String token) {
+		final PasswordResetToken passToken = passwordResetTokenRepository.findByToken(token);
+		return !isTokenFound(passToken) ? "invalidToken"
+				: isTokenExpired(passToken) ? "expired"
+				: null;
+	}
+	
+	private boolean isTokenFound(PasswordResetToken passToken) {
+		return passToken != null;
+	}
+	
+	private boolean isTokenExpired(PasswordResetToken passToken) {
+		final Calendar cal = Calendar.getInstance();
+		return passToken.getExpiryDate().before(cal.getTime());
 	}
 }

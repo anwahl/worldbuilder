@@ -7,23 +7,31 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.hamcrest.Matchers.*;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-
+import org.springframework.transaction.annotation.Transactional;
 
 import com.wahlhalla.worldbuilder.user.UserRepository;
 import com.wahlhalla.worldbuilder.util.Util;
@@ -35,9 +43,12 @@ import com.wahlhalla.worldbuilder.user.User;
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(Lifecycle.PER_CLASS)
-@TestPropertySource(
-  locations = "classpath:application-integrationtest.properties")
+@TestPropertySource(locations = "classpath:application-integrationtest.properties")
+@Import(Config.class)
 class WorldControllerTests {
+  
+  @Autowired
+  UserDetailsService userDetailsService;
 
 	@Autowired
   private MockMvc mvc;
@@ -55,6 +66,15 @@ class WorldControllerTests {
   void createUsers() {
     userRepository.save(new User("admin", "admin", "password"));
     userRepository.save(new User("user", "user", "password"));
+    userRepository.save(new User("test", "test", "pass"));
+  }
+
+  @BeforeEach
+  void authenticate() {
+    Authentication authentication = Mockito.mock(Authentication.class);
+    SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+    Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+    Mockito.when(authentication.getPrincipal()).thenReturn(userDetailsService.loadUserByUsername("admin"));
   }
 
   @AfterEach
@@ -67,6 +87,7 @@ class WorldControllerTests {
 		assertThat(worldController).isNotNull();
 	}
 
+  @Transactional
   @WithUserDetails(value = "admin")
   @Test
   public void givenWorld_whenGetWorldsAsAdmin_thenStatus200()
@@ -86,6 +107,7 @@ class WorldControllerTests {
         .andExpect(jsonPath("$[0].user.id", is(1)));
   }
 
+  @Transactional
   @WithUserDetails(value = "user")
   @Test
   public void givenWorld_whenGetWorldsAsUser_thenStatus403()
@@ -99,6 +121,7 @@ class WorldControllerTests {
         .andExpect(status().is(403));
   }
 
+  @Transactional
   @WithUserDetails(value = "user")
   @Test
   public void givenWorld_whenGetWorld_thenStatus200()
@@ -118,6 +141,7 @@ class WorldControllerTests {
         .andExpect(jsonPath("user.id", is(2)));
   }
 
+  @Transactional
   @WithUserDetails(value = "user")
   @Test
   public void givenPrivateWorld_whenGetPublicWorlds_thenEmpty()
@@ -131,6 +155,7 @@ class WorldControllerTests {
         .andExpect(jsonPath("$.id").doesNotExist());
   }
 
+  @Transactional
   @WithUserDetails(value = "admin")
   @Test
   public void givenWorld_whenGetWorldByUser_thenStatus200()
@@ -150,6 +175,7 @@ class WorldControllerTests {
         .andExpect(jsonPath("$[0].user.id", is(1)));
   }
 
+  @Transactional
   @WithUserDetails(value = "admin")
   @Test
   public void givenWorld_whenGetWorldByName_thenStatus200()
@@ -169,6 +195,7 @@ class WorldControllerTests {
         .andExpect(jsonPath("$[0].user.id", is(1)));
   }
 
+  @Transactional
   @WithUserDetails(value = "admin")
   @Test
   public void givenWorld_whenPostWorld_thenStatus201()
@@ -187,6 +214,7 @@ class WorldControllerTests {
         assertThat(worldRepository.count()).isEqualTo(1);
   }
 
+  @Transactional
   @WithUserDetails(value = "admin")
   @Test
   public void givenWorld_whenDeleteWorld_thenStatus200()
@@ -207,6 +235,7 @@ class WorldControllerTests {
     //TODO
   }
 
+  @Transactional
   @WithUserDetails(value = "admin")
   @Test
   public void givenWorld_whenPutWorld_thenStatus200()

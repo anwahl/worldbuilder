@@ -8,6 +8,9 @@ public class PasswordChangeRequest {
 
 	private String newPassword;
 
+	private String token;
+
+
 	public String getUsername() {
 		return username;
 	}
@@ -30,5 +33,13 @@ public class PasswordChangeRequest {
 
 	public void setNewPassword(String newPassword) {
 		this.newPassword = newPassword;
+	}
+	
+	public String getToken() {
+		return this.token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 }

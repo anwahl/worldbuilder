@@ -1,5 +1,6 @@
 package com.wahlhalla.worldbuilder.world;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.hibernate.annotations.Cascade;
@@ -39,7 +40,7 @@ public class World {
     @Column(name="IS_PRIVATE", nullable = false, unique = false)
     private Boolean isPrivate;
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
-    private Set<Race> races;
+    private Set<Race> races = new HashSet<>();
 
     public World () {
 
@@ -103,14 +104,14 @@ public class World {
 	}
 
 	public void setRaces(Set<Race> races) {
-		this.races = races;
+		this.races.addAll(races);
 	}
 
     @Override
     public String toString() {
         return String.format(
             "World[id=%d, name='%s', description='%s', user='%s', private='%s']",
-            id, this.name, this.description, this.user.getUsername(), this.getIsPrivate());
+            id, this.name, this.description, (this.user != null ? this.user.getUsername() : "null"), this.getIsPrivate());
     }
     
 }

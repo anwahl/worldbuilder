@@ -60,17 +60,12 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.cors().and().csrf().disable()
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-        .authorizeHttpRequests().requestMatchers("/", "/**public","/error","/favicon.ico","/api/auth/signup").permitAll()
+        .authorizeHttpRequests().requestMatchers("/","/error","/favicon.ico","/api/auth/signup", "/api/auth/signin","/api/auth/signout",
+             "/api/auth/resetPassword/**", "/api/auth/resetChangePassword/**", "/api/auth/savePassword/**").permitAll().and()
+        .authorizeHttpRequests().requestMatchers(req-> req.getRequestURI().contains("public")).permitAll()
         .anyRequest().authenticated().and()
-      .formLogin() 
-         .loginPage("/api/auth/signin") 
-         .permitAll()
-         .and()
-      .logout()
-        .logoutUrl("/api/auth/signout")
-        .permitAll().and()
-      .exceptionHandling().authenticationEntryPoint(unauthorizedHandler);
+      .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+      .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     
     http.authenticationProvider(authenticationProvider());
 

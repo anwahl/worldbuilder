@@ -23,7 +23,7 @@ import jakarta.persistence.Table;
 @Table(name = "USERS" )
 public class User {
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
     @Column(name="USERNAME", length=64, nullable=false, unique=true)
@@ -42,7 +42,7 @@ public class User {
 	private Set<Role> roles = new HashSet<>();
 
 	@OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "user")
-    private Set<World> worlds;
+    private Set<World> worlds = new HashSet<>();
 
 	public User() {
 	}
@@ -98,6 +98,6 @@ public class User {
 	}
 
 	public void setWorlds(Set<World> worlds) {
-		this.worlds = worlds;
+		this.worlds.addAll(worlds);
 	}
 }

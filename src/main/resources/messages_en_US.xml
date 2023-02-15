@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <entry key="messages">
+        <entry key="message" value="message.resetPasswordEmail">
+                Reset your password. Follow this link, somehow.
+        </entry>
+        <entry key="message" value="message.resetPassword">
+                Reset Password!
+        </entry>
+        <entry key="message" value="message.resetPasswordSuc">
+                Password reset successfully!
+        </entry>
+        <entry key="message" value="auth.message.invalid">
+                Invalid
+        </entry>
+        <entry key="message" value="user.notFound">
+                User was not found!
+        </entry>
+    </entry>
+</properties>
