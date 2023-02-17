@@ -22,7 +22,7 @@ public class WorldService {
 
     public World save(World world) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        world.setUser(userRepository.findByUsername(auth.getName()).get());
+        world.setUser(userRepository.findByUsernameIgnoreCase(auth.getName()).get());
         return worldRepository.save(world);
     }
 }

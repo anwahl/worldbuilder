@@ -89,7 +89,7 @@ public class AuthController {
 	public ResponseEntity<?> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) {
 
 		Authentication authentication = authenticationManager
-			.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+			.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername().toLowerCase(), loginRequest.getPassword()));
 	
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 	
@@ -134,20 +134,20 @@ public class AuthController {
 
 	@PostMapping("/signup")
 	public ResponseEntity<?> registerUser(@Validated @RequestBody SignupRequest signUpRequest) {
-		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+		if (userRepository.existsByUsernameIgnoreCase(signUpRequest.getUsername().toLowerCase())) {
 			return ResponseEntity
 					.badRequest()
 					.body(new MessageResponse("Username is already taken!"));
 		}
 
-		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+		if (userRepository.existsByEmailIgnoreCase(signUpRequest.getEmail())) {
 			return ResponseEntity
 					.badRequest()
 					.body(new MessageResponse("Email is already in use!"));
 		}
 
 		// Create new user's account
-		User user = new User(signUpRequest.getUsername(), 
+		User user = new User(signUpRequest.getUsername().toLowerCase(), 
 							 signUpRequest.getEmail(),
 							 encoder.encode(signUpRequest.getPassword()));
 
@@ -208,7 +208,7 @@ public class AuthController {
 	@PutMapping("/changeEmail/{userId}")
 	@PreAuthorize("hasRole('ADMIN') or @checkUser.byUserId(authentication, #userId)")
 	public ResponseEntity<?> changeEmail(@Validated @RequestBody EmailChangeRequest emailChangeRequest, @PathVariable Long userId) {
-		if (userRepository.existsByEmail(emailChangeRequest.getNewEmail())) {
+		if (userRepository.existsByEmailIgnoreCase(emailChangeRequest.getNewEmail())) {
 			return ResponseEntity
 					.badRequest()
 					.body(new MessageResponse("Email is already in use!"));
@@ -224,7 +224,7 @@ public class AuthController {
 	@PostMapping("/resetPassword/{email}")
 	public GenericResponse resetPassword(@PathVariable("email") String email) throws MessagingException {
 		try {
-			User user = userRepository.findByEmail(email).get();
+			User user = userRepository.findByEmailIgnoreCase(email).get();
 			String token = UUID.randomUUID().toString();
 			PasswordResetToken myToken = new PasswordResetToken(token, user);
 			passwordResetTokenRepository.save(myToken);
