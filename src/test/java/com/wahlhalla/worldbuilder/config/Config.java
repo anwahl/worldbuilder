@@ -1,4 +1,4 @@
-package com.wahlhalla.worldbuilder;
+package com.wahlhalla.worldbuilder.config;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.wahlhalla.worldbuilder;
+package com.wahlhalla.worldbuilder.config;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

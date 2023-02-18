@@ -56,15 +56,15 @@ public class RaceController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
     public Race create(@RequestBody Race race) {
-        return raceRepository.save(race);
+        return this.raceRepository.save(race);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byRaceId(authentication, #id)")
     public void delete(@PathVariable Long id) {
-        raceRepository.findById(id)
+        this.raceRepository.findById(id)
           .orElseThrow(EntityNotFoundException::new);
-        raceRepository.deleteById(id);
+        this.raceRepository.deleteById(id);
     }
 
     @PutMapping("/{id}")
@@ -73,8 +73,8 @@ public class RaceController {
         if (race.getId() != id) {
           throw new EntityIdMismatchException();
         }
-        raceRepository.findById(id)
+        this.raceRepository.findById(id)
           .orElseThrow(EntityNotFoundException::new);
-        return raceRepository.save(race);
+        return this.raceRepository.save(race);
     }
 }

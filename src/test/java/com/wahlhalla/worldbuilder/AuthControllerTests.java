@@ -1,7 +1,6 @@
 package com.wahlhalla.worldbuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -25,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.wahlhalla.worldbuilder.config.WithMockCustomUser;
 import com.wahlhalla.worldbuilder.role.ERole;
 import com.wahlhalla.worldbuilder.role.Role;
 import com.wahlhalla.worldbuilder.role.RoleRepository;

@@ -3,7 +3,8 @@ package com.wahlhalla.worldbuilder.world;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wahlhalla.worldbuilder.race.Race;
@@ -35,7 +36,7 @@ public class World {
     @ManyToOne
     @JsonIgnoreProperties({"email", "password", "roles", "worlds"})
     @JoinColumn(name="USER_ID", nullable=false, updatable = false)
-    @Cascade({ org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN })
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
     @Column(name="IS_PRIVATE", nullable = false, unique = false)
     private Boolean isPrivate;

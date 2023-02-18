@@ -35,6 +35,12 @@ import com.wahlhalla.worldbuilder.util.Util;
 import com.wahlhalla.worldbuilder.world.World;
 import com.wahlhalla.worldbuilder.world.WorldController;
 import com.wahlhalla.worldbuilder.world.WorldRepository;
+
+import jakarta.persistence.EntityManager;
+
+import com.wahlhalla.worldbuilder.config.Config;
+import com.wahlhalla.worldbuilder.race.Race;
+import com.wahlhalla.worldbuilder.race.RaceRepository;
 import com.wahlhalla.worldbuilder.user.User;
 
 @SpringBootTest
@@ -58,6 +64,12 @@ class WorldControllerTests {
 
   @Autowired
   WorldRepository worldRepository;
+
+  @Autowired
+  RaceRepository raceRepository;
+
+  @Autowired
+  EntityManager entityManager;
 
   @BeforeAll
   void createUsers() {
@@ -223,13 +235,25 @@ class WorldControllerTests {
         .contentType(MediaType.APPLICATION_JSON)
 	      .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
-        assertThat(worldRepository.count()).isEqualTo(0);
+      assertThat(worldRepository.count()).isEqualTo(0);
   }
 
+  @Transactional
   @WithUserDetails(value = "admin")
   @Test
-  public void whenDeletingWorlds_thenEverythingUnderItShouldBeDeleted() {
-    //TODO
+  public void whenDeletingWorld_thenChildrenShouldBeDeleted() throws Exception {
+      World world = new World("World Name", "World Description", false);
+      worldController.create(world);
+      Race race = new Race("raceName", "raceDescription", "raceTrait", world);
+      raceRepository.save(race);
+      assertThat(raceRepository.count()).isEqualTo(1);
+      assertThat(worldRepository.count()).isEqualTo(1);
+      mvc.perform(delete("/api/world/" + world.getId())
+        .contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+      assertThat(worldRepository.count()).isEqualTo(0);
+      assertThat(raceRepository.count()).isEqualTo(0);
   }
 
   @Transactional

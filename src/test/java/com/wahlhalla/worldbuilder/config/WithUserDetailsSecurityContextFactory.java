@@ -1,4 +1,4 @@
-package com.wahlhalla.worldbuilder;
+package com.wahlhalla.worldbuilder.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

@@ -1,5 +1,8 @@
 package com.wahlhalla.worldbuilder.race;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wahlhalla.worldbuilder.world.World;
 
@@ -28,17 +31,19 @@ public class Race {
     private String trait;
     @ManyToOne
     @JsonIgnoreProperties({"races"})
-    @JoinColumn(name="WORLD_ID", nullable=false)
+    @JoinColumn(name="WORLD_ID", nullable=false, updatable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;
 
     public Race() {
 
     }
 
-    public Race(final String name, final String description, final String trait) {
+    public Race(final String name, final String description, final String trait, final World world) {
         this.name = name;
         this.description = description;
         this.trait = trait;
+        this.world = world;
     }
 
     public long getId() {
@@ -74,7 +79,7 @@ public class Race {
     }
 
     public World getWorld() {
-        return this.getWorld();
+        return this.world;
     }
 
     public void setWorld(final World world) {
