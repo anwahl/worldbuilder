@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.hamcrest.Matchers.*;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -95,6 +96,11 @@ class WorldControllerTests {
 	public void contextLoads() throws Exception {
 		assertThat(worldController).isNotNull();
 	}
+
+  @AfterAll
+  void clearUsers() {
+      this.userRepository.deleteAll();
+  }
 
   @Transactional
   @WithUserDetails(value = "admin")

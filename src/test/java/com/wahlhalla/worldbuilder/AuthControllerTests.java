@@ -12,9 +12,13 @@ import java.util.Set;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.hamcrest.Matchers.*;
+
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -43,14 +47,12 @@ import com.wahlhalla.worldbuilder.util.Util;
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 public class AuthControllerTests {
     
-    
     @Autowired
     UserDetailsService userDetailsService;
 
     @Autowired
     UserRepository userRepository;
 
-    
     @Autowired
     RoleRepository roleRepository;
 
@@ -79,7 +81,11 @@ public class AuthControllerTests {
             .accept(MediaType.APPLICATION_JSON));
     }
 
-
+    @AfterAll
+    void clearUsers() {
+        this.userRepository.deleteAll();
+    }
+    
     @Test
     public void contextLoads() throws Exception {
             assertThat(authController).isNotNull();
@@ -181,7 +187,7 @@ public class AuthControllerTests {
         passwordChangeRequest.setNewPassword("newPassword");
         passwordChangeRequest.setOldPassword("wrong");
         User user = userRepository.findByUsernameIgnoreCase("user").get();
-
+        
         mvc.perform(put("/api/auth/changePassword/" + user.getId())
             .content(Util.asJsonString(passwordChangeRequest))
             .contentType(MediaType.APPLICATION_JSON)

@@ -7,7 +7,22 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wahlhalla.worldbuilder.actor.Actor;
+import com.wahlhalla.worldbuilder.creature.Creature;
+import com.wahlhalla.worldbuilder.geography.Geography;
+import com.wahlhalla.worldbuilder.god.God;
+import com.wahlhalla.worldbuilder.language.Language;
+import com.wahlhalla.worldbuilder.magicsystem.MagicSystem;
+import com.wahlhalla.worldbuilder.moon.Moon;
+import com.wahlhalla.worldbuilder.plant.Plant;
+import com.wahlhalla.worldbuilder.politicalsystem.PoliticalSystem;
 import com.wahlhalla.worldbuilder.race.Race;
+import com.wahlhalla.worldbuilder.region.Region;
+import com.wahlhalla.worldbuilder.religion.Religion;
+import com.wahlhalla.worldbuilder.resource.Resource;
+import com.wahlhalla.worldbuilder.socialclass.SocialClass;
+import com.wahlhalla.worldbuilder.sun.Sun;
+import com.wahlhalla.worldbuilder.technology.Technology;
 import com.wahlhalla.worldbuilder.user.User;
 
 import jakarta.persistence.CascadeType;
@@ -31,7 +46,7 @@ public class World {
     private long id;
     @Column(name="NAME", length=64, nullable=false)
     private String name;
-    @Column(name="DESCRIPTION")
+    @Column(name="DESCRIPTION", length = 1024, nullable = false)
     private String description;
     @ManyToOne
     @JsonIgnoreProperties({"email", "password", "roles", "worlds"})
@@ -42,6 +57,36 @@ public class World {
     private Boolean isPrivate;
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
     private Set<Race> races = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<Region> regions = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<Language> languages = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<Religion> religions = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<God> gods = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<SocialClass> socialClasses = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<Creature> creatures = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<Plant> plants = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<Sun> suns = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<Moon> moons = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<PoliticalSystem> politicalSystems = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<Geography> geographies = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<Resource> resources = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<MagicSystem> magicSystems = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<Technology> technologies = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
+    private Set<Actor> actors = new HashSet<>();
 
     public World () {
 
@@ -101,12 +146,30 @@ public class World {
     }
 
 	public Set<Race> getRaces() {
-		return races;
+		return this.races;
 	}
 
 	public void setRaces(Set<Race> races) {
 		this.races.addAll(races);
 	}
+
+	public Set<Region> getRegions() {
+		return this.regions;
+	}
+
+	public void setRegions(Set<Region> regions) {
+		this.regions.addAll(regions);
+	}
+    
+	public Set<Language> getLanguages() {
+		return this.languages;
+	}
+
+	public void setLanguages(Set<Language> languages) {
+		this.languages.addAll(languages);
+	}
+    
+//TODO:  religions and gods and etc
 
     @Override
     public String toString() {

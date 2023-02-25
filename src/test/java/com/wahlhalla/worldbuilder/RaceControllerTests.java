@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.hamcrest.Matchers.*;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,7 +74,6 @@ public class RaceControllerTests {
   
     @BeforeAll
     void createUsers() {
-        userRepository.deleteAll();
         userRepository.save(new User("admin", "admin", "password"));
         userRepository.save(new User("user", "user@email.com", "password"));
     }
@@ -91,7 +91,12 @@ public class RaceControllerTests {
         raceRepository.deleteAll();
         worldRepository.deleteAll();
     }
-  
+
+    @AfterAll
+    void clearUsers() {
+        this.userRepository.deleteAll();
+    }
+
     @Test
     @WithMockCustomUser
       public void contextLoads() throws Exception {
@@ -207,7 +212,6 @@ public class RaceControllerTests {
           .andExpect(status().isOk());
         assertThat(raceRepository.count()).isEqualTo(0);
     }
-  
   
     @Transactional
     @WithMockCustomUser

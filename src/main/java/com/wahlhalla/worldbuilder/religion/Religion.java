@@ -1,4 +1,4 @@
-package com.wahlhalla.worldbuilder.race;
+package com.wahlhalla.worldbuilder.religion;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -8,8 +8,10 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wahlhalla.worldbuilder.actor.Actor;
+import com.wahlhalla.worldbuilder.god.God;
 import com.wahlhalla.worldbuilder.world.World;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,34 +24,33 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name="RACE", uniqueConstraints = { @UniqueConstraint(columnNames = { "NAME", "WORLD_ID" }) })
-public class Race {
-
+@Table(name="RELIGION", uniqueConstraints = { @UniqueConstraint(columnNames = { "NAME", "WORLD_ID" }) })
+public class Religion {
+    
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column(name="NAME", length=64, nullable=false)
+    @Column(name = "NAME", length = 64, nullable = false)
     private String name;
-    @Column(name="DESCRIPTION", length=1024, nullable=false)
+    @Column(name = "DESCRIPTION", length = 1024, nullable = false)
     private String description;
-    @Column(name="TRAIT", length=256, nullable=true)
-    private String trait;
-    @OneToMany(mappedBy = "race")
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "religion")
+    private Set<God> gods = new HashSet<>();
+    @OneToMany(mappedBy = "religion")
     private Set<Actor> actors = new HashSet<>();
     @ManyToOne
-    @JsonIgnoreProperties({"races"})
-    @JoinColumn(name="WORLD_ID", nullable=false, updatable = false)
+    @JsonIgnoreProperties({ "religions" })
+    @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;
 
-    public Race() {
-
+    public Religion() {
     }
 
-    public Race(final String name, final String description, final String trait, final World world) {
+    public Religion(String name, String description, Set<God> gods, World world) {
         this.name = name;
         this.description = description;
-        this.trait = trait;
+        this.gods = gods;
         this.world = world;
     }
 
@@ -57,7 +58,7 @@ public class Race {
         return this.id;
     }
 
-    public void setId(final long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -65,7 +66,7 @@ public class Race {
         return this.name;
     }
 
-    public void setName(final String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -73,23 +74,23 @@ public class Race {
         return this.description;
     }
 
-    public void setDescription(final String description) {
+    public void setDescription(String description) {
         this.description = description;
     }
 
-    public String getTrait() {
-        return this.trait;
+    public Set<God> getGods() {
+        return this.gods;
     }
 
-    public void setTrait(final String trait) {
-        this.trait = trait;
+    public void setGods(Set<God> gods) {
+        this.gods = gods;
     }
 
     public World getWorld() {
         return this.world;
     }
 
-    public void setWorld(final World world) {
+    public void setWorld(World world) {
         this.world = world;
     }
 
@@ -103,8 +104,12 @@ public class Race {
 
     @Override
     public String toString() {
-        return String.format(
-            "Race[id=%d, name='%s', description='%s', trait='%s']",
-            id, this.name, this.description, this.trait);
+        return "{" +
+            " id='" + getId() + "'" +
+            ", name='" + getName() + "'" +
+            ", description='" + getDescription() + "'" +
+            ", gods='" + getGods() + "'" +
+            ", world='" + getWorld() + "'" +
+            "}";
     }
 }

@@ -1,4 +1,5 @@
-package com.wahlhalla.worldbuilder.race;
+package com.wahlhalla.worldbuilder.god;
+
 
 import java.util.List;
 
@@ -19,67 +20,67 @@ import com.wahlhalla.worldbuilder.util.exceptions.EntityIdMismatchException;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityNotFoundException;
 
 @RestController
-@RequestMapping("/api/race")
-public class RaceController {
+@RequestMapping("/api/god")
+public class GodController {
     
     @Autowired
-    private RaceRepository raceRepository;
+    private GodRepository godRepository;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public List<Race> findAll() {
-        return this.raceRepository.findAll();
+    public List<God> findAll() {
+        return this.godRepository.findAll();
     }
 
     @GetMapping("/public")
-    public List<Race> findAllPublic(@PathVariable Long worldId) {
-        return this.raceRepository.findByWorldIdAndWorldIsPrivateFalse(worldId);
+    public List<God> findAllPublic(@PathVariable Long worldId) {
+        return this.godRepository.findByWorldIdAndWorldIsPrivateFalse(worldId);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or @checkUser.byRaceId(authentication, #id)"
-                   + " or @checkPrivacy.byRaceId(#id)")
-    public Race findOne(@PathVariable Long id) {
-        return this.raceRepository.findById(id)
+    @PreAuthorize("hasRole('ADMIN') or @checkUser.byGodId(authentication, #id)"
+                   + " or @checkPrivacy.byGodId(#id)")
+    public God findOne(@PathVariable Long id) {
+        return this.godRepository.findById(id)
           .orElseThrow(EntityNotFoundException::new);
     }
 
     @GetMapping("/world/{worldId}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byWorldId(authentication, #worldId)"
                   + " or @checkPrivacy.byWorldId(#worldId)")
-    public List<Race> findByWorldId(@PathVariable Long worldId) {
-        return this.raceRepository.findByWorldId(worldId);
+    public List<God> findByWorldId(@PathVariable Long worldId) {
+        return this.godRepository.findByWorldId(worldId);
     }
 
     @GetMapping("/name/{name}")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<Race> findByName(@PathVariable String name) {
-        return this.raceRepository.findByNameContainingIgnoreCase(name);
+    public List<God> findByName(@PathVariable String name) {
+        return this.godRepository.findByNameContainingIgnoreCase(name);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
-    public Race create(@RequestBody Race race) {
-        return this.raceRepository.save(race);
+    public God create(@RequestBody God god) {
+        return this.godRepository.save(god);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or @checkUser.byRaceId(authentication, #id)")
+    @PreAuthorize("hasRole('ADMIN') or @checkUser.byGodId(authentication, #id)")
     public void delete(@PathVariable Long id) {
-        this.raceRepository.findById(id)
+        this.godRepository.findById(id)
           .orElseThrow(EntityNotFoundException::new);
-        this.raceRepository.deleteById(id);
+        this.godRepository.deleteById(id);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or @checkUser.byRaceId(authentication, #id)")
-    public Race update(@RequestBody Race race, @PathVariable Long id) {
-        if (race.getId() != id) {
+    @PreAuthorize("hasRole('ADMIN') or @checkUser.byGodId(authentication, #id)")
+    public God update(@RequestBody God god, @PathVariable Long id) {
+        if (god.getId() != id) {
           throw new EntityIdMismatchException();
         }
-        this.raceRepository.findById(id)
+        this.godRepository.findById(id)
           .orElseThrow(EntityNotFoundException::new);
-        return this.raceRepository.save(race);
+        return this.godRepository.save(god);
     }
 }
