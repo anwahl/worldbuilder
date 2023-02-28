@@ -49,12 +49,13 @@ public class World {
     @Column(name="DESCRIPTION", length = 1024, nullable = false)
     private String description;
     @ManyToOne
-    @JsonIgnoreProperties({"email", "password", "roles", "worlds"})
+    @JsonIgnoreProperties(value={"email", "password", "roles", "worlds"}, allowSetters = true)
     @JoinColumn(name="USER_ID", nullable=false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
     @Column(name="IS_PRIVATE", nullable = false, unique = false)
     private Boolean isPrivate;
+    @JsonIgnoreProperties(value={"actors"}, allowSetters = true)
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
     private Set<Race> races = new HashSet<>();
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
@@ -65,6 +66,7 @@ public class World {
     private Set<Religion> religions = new HashSet<>();
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
     private Set<God> gods = new HashSet<>();
+    @JsonIgnoreProperties(value={"races","regions"}, allowSetters = true)
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")
     private Set<SocialClass> socialClasses = new HashSet<>();
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "world")

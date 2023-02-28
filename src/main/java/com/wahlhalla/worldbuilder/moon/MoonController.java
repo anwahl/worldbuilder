@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityIdMismatchException;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityNotFoundException;
 
+import jakarta.transaction.Transactional;
+
 @RestController
 @RequestMapping("/api/moon")
 public class MoonController {
@@ -58,6 +60,7 @@ public class MoonController {
         return this.moonRepository.findByNameContainingIgnoreCase(name);
     }
 
+    @Transactional
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
@@ -65,6 +68,7 @@ public class MoonController {
         return this.moonRepository.save(moon);
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byMoonId(authentication, #id)")
     public void delete(@PathVariable Long id) {
@@ -73,6 +77,7 @@ public class MoonController {
         this.moonRepository.deleteById(id);
     }
 
+    @Transactional
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byMoonId(authentication, #id)")
     public Moon update(@RequestBody Moon moon, @PathVariable Long id) {

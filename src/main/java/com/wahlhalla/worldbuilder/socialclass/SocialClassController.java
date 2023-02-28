@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityIdMismatchException;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityNotFoundException;
 
+import jakarta.transaction.Transactional;
+
 @RestController
 @RequestMapping("/api/socialClass")
 public class SocialClassController {
@@ -70,6 +72,7 @@ public class SocialClassController {
         return this.socialClassRepository.findByWorldIdAndRegionId(worldId, raceId);
     }
 
+    @Transactional
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
@@ -77,6 +80,7 @@ public class SocialClassController {
         return this.socialClassRepository.save(socialClass);
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.bySocialClassId(authentication, #id)")
     public void delete(@PathVariable Long id) {
@@ -85,6 +89,7 @@ public class SocialClassController {
         this.socialClassRepository.deleteById(id);
     }
 
+    @Transactional
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.bySocialClassId(authentication, #id)")
     public SocialClass update(@RequestBody SocialClass socialClass, @PathVariable Long id) {

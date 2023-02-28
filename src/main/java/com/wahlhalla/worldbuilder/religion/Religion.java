@@ -39,7 +39,7 @@ public class Religion {
     @OneToMany(mappedBy = "religion")
     private Set<Actor> actors = new HashSet<>();
     @ManyToOne
-    @JsonIgnoreProperties({ "religions" })
+    @JsonIgnoreProperties(value={ "religions" }, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;
@@ -47,10 +47,9 @@ public class Religion {
     public Religion() {
     }
 
-    public Religion(String name, String description, Set<God> gods, World world) {
+    public Religion(String name, String description, World world) {
         this.name = name;
         this.description = description;
-        this.gods = gods;
         this.world = world;
     }
 

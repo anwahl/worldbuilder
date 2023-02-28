@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityIdMismatchException;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityNotFoundException;
 
+import jakarta.transaction.Transactional;
+
 @RestController
 @RequestMapping("/api/god")
 public class GodController {
@@ -58,6 +60,7 @@ public class GodController {
         return this.godRepository.findByNameContainingIgnoreCase(name);
     }
 
+    @Transactional
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
@@ -65,6 +68,7 @@ public class GodController {
         return this.godRepository.save(god);
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byGodId(authentication, #id)")
     public void delete(@PathVariable Long id) {
@@ -73,6 +77,7 @@ public class GodController {
         this.godRepository.deleteById(id);
     }
 
+    @Transactional
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byGodId(authentication, #id)")
     public God update(@RequestBody God god, @PathVariable Long id) {

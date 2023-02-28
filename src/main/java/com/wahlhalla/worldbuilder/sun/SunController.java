@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityIdMismatchException;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityNotFoundException;
 
+import jakarta.transaction.Transactional;
+
 @RestController
 @RequestMapping("/api/sun")
 public class SunController {
@@ -58,6 +60,7 @@ public class SunController {
         return this.sunRepository.findByNameContainingIgnoreCase(name);
     }
 
+    @Transactional
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
@@ -65,6 +68,7 @@ public class SunController {
         return this.sunRepository.save(sun);
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.bySunId(authentication, #id)")
     public void delete(@PathVariable Long id) {
@@ -73,6 +77,7 @@ public class SunController {
         this.sunRepository.deleteById(id);
     }
 
+    @Transactional
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.bySunId(authentication, #id)")
     public Sun update(@RequestBody Sun sun, @PathVariable Long id) {

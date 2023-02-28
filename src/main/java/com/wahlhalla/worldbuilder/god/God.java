@@ -29,12 +29,12 @@ public class God {
     @Column(name = "DESCRIPTION", length = 1024, nullable = false)
     private String description;
     @ManyToOne
-    @JsonIgnoreProperties({ "gods" })
+    @JsonIgnoreProperties(value={ "gods" }, allowSetters = true)
     @JoinColumn(name = "RELIGION_ID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Religion religion;
     @ManyToOne
-    @JsonIgnoreProperties({ "gods" })
+    @JsonIgnoreProperties(value={ "gods" }, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

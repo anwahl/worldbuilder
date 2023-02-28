@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityIdMismatchException;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityNotFoundException;
 
+import jakarta.transaction.Transactional;
+
 @RestController
 @RequestMapping("/api/technology")
 public class TechnologyController {
@@ -58,6 +60,7 @@ public class TechnologyController {
         return this.technologyRepository.findByNameContainingIgnoreCase(name);
     }
 
+    @Transactional
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
@@ -65,6 +68,7 @@ public class TechnologyController {
         return this.technologyRepository.save(technology);
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byTechnologyId(authentication, #id)")
     public void delete(@PathVariable Long id) {
@@ -73,6 +77,7 @@ public class TechnologyController {
         this.technologyRepository.deleteById(id);
     }
 
+    @Transactional
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byTechnologyId(authentication, #id)")
     public Technology update(@RequestBody Technology technology, @PathVariable Long id) {

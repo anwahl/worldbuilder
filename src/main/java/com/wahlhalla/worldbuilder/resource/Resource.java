@@ -40,7 +40,7 @@ public class Resource {
         inverseJoinColumns = @JoinColumn(name = "GEOGRAPHY_ID"))
     private Set<Geography> geographies = new HashSet<>();
     @ManyToOne
-    @JsonIgnoreProperties({ "resources" })
+    @JsonIgnoreProperties(value={ "resources" }, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;
@@ -48,10 +48,9 @@ public class Resource {
     public Resource() {
     }
 
-    public Resource(String name, String description, Set<Geography> geographies, World world) {
+    public Resource(String name, String description, World world) {
         this.name = name;
         this.description = description;
-        this.geographies = geographies;
         this.world = world;
     }
 

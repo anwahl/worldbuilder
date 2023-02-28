@@ -26,7 +26,7 @@ public class ActorRegionEvent extends TimelineEvent {
         inverseJoinColumns = @JoinColumn(name = "ACTOR_REGION_EVENT_ID"))
     private Set<Actor> actors = new HashSet<>();
     @ManyToOne
-    @JsonIgnoreProperties({ "actorRegionEvents" })
+    @JsonIgnoreProperties(value={ "actorRegionEvents" }, allowSetters = true)
     @JoinColumn(name = "REGION_ID", nullable = false)
     private Region region;
 

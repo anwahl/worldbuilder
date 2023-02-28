@@ -16,6 +16,7 @@ import com.wahlhalla.worldbuilder.world.World;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -39,28 +40,29 @@ public class Actor {
     private String lastName;
     @Column(name = "DESCRIPTION", length = 1024, nullable = false)
     private String description;
-    @ManyToOne
-    @JsonIgnoreProperties({ "actors" })
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "actors","world" }, allowSetters = true)
     @JoinColumn(name = "RACE_ID", nullable = false)
     private Race race;
-    @ManyToOne
-    @JsonIgnoreProperties({ "actors" })
-    @JoinColumn(name = "SOCIAL_CLASS_ID", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "actors","world" }, allowSetters = true)
+    @JoinColumn(name = "SOCIAL_CLASS_ID", nullable = true)
     private SocialClass socialClass;
-    @ManyToOne
-    @JsonIgnoreProperties({ "actors" })
-    @JoinColumn(name = "RELIGION_ID", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "actors","world" }, allowSetters = true)
+    @JoinColumn(name = "RELIGION_ID", nullable = true)
     private Religion religion;
     @ManyToMany(mappedBy = "actors")
     private Set<ActorRegionEvent> actorRegionEvents = new HashSet<>();
-    @ManyToMany
+    @JsonIgnoreProperties(value = { "actors" }, allowSetters = true)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "ACTOR_LANGUAGES", 
         joinColumns = @JoinColumn(name = "ACTOR_ID"), 
         inverseJoinColumns = @JoinColumn(name = "LANGUAGE_ID"))
     private Set<Language> languages = new HashSet<>();
-    @ManyToOne
-    @JsonIgnoreProperties({ "actors" })
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "actors","languages" }, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

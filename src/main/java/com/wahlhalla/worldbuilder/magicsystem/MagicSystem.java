@@ -35,7 +35,7 @@ public class MagicSystem {
     @Column(name = "TYPE", nullable = false)
     private MagicSystemType type;
     @ManyToOne
-    @JsonIgnoreProperties({ "magicSystems" })
+    @JsonIgnoreProperties(value={ "magicSystems" }, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

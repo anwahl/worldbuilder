@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityIdMismatchException;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityNotFoundException;
 
+import jakarta.transaction.Transactional;
+
 @RestController
 @RequestMapping("/api/geography")
 public class GeographyController {
@@ -58,6 +60,7 @@ public class GeographyController {
         return this.geographyRepository.findByNameContainingIgnoreCase(name);
     }
 
+    @Transactional
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
@@ -65,6 +68,7 @@ public class GeographyController {
         return this.geographyRepository.save(geography);
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byGeographyId(authentication, #id)")
     public void delete(@PathVariable Long id) {
@@ -73,6 +77,7 @@ public class GeographyController {
         this.geographyRepository.deleteById(id);
     }
 
+    @Transactional
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byGeographyId(authentication, #id)")
     public Geography update(@RequestBody Geography geography, @PathVariable Long id) {

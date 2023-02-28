@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityIdMismatchException;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityNotFoundException;
 
+import jakarta.transaction.Transactional;
+
 @RestController
 @RequestMapping("/api/politicalSystem")
 public class PoliticalSystemController {
@@ -66,6 +68,7 @@ public class PoliticalSystemController {
         return this.politicalSystemRepository.findByNameContainingIgnoreCase(name);
     }
 
+    @Transactional
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
@@ -73,6 +76,7 @@ public class PoliticalSystemController {
         return this.politicalSystemRepository.save(politicalSystem);
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byPoliticalSystemId(authentication, #id)")
     public void delete(@PathVariable Long id) {
@@ -81,6 +85,7 @@ public class PoliticalSystemController {
         this.politicalSystemRepository.deleteById(id);
     }
 
+    @Transactional
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byPoliticalSystemId(authentication, #id)")
     public PoliticalSystem update(@RequestBody PoliticalSystem politicalSystem, @PathVariable Long id) {

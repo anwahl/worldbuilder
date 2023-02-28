@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityIdMismatchException;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityNotFoundException;
 
+import jakarta.transaction.Transactional;
+
 @RestController
 @RequestMapping("/api/plant")
 public class PlantController {
@@ -59,6 +61,7 @@ public class PlantController {
         return this.plantRepository.findByNameContainingIgnoreCase(name);
     }
 
+    @Transactional
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
@@ -66,6 +69,7 @@ public class PlantController {
         return this.plantRepository.save(plant);
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byPlantId(authentication, #id)")
     public void delete(@PathVariable Long id) {
@@ -74,6 +78,7 @@ public class PlantController {
         this.plantRepository.deleteById(id);
     }
 
+    @Transactional
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byPlantId(authentication, #id)")
     public Plant update(@RequestBody Plant plant, @PathVariable Long id) {

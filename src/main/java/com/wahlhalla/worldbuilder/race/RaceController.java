@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityIdMismatchException;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityNotFoundException;
 
+import jakarta.transaction.Transactional;
+
 @RestController
 @RequestMapping("/api/race")
 public class RaceController {
@@ -57,6 +59,7 @@ public class RaceController {
         return this.raceRepository.findByNameContainingIgnoreCase(name);
     }
 
+    @Transactional
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
@@ -64,6 +67,7 @@ public class RaceController {
         return this.raceRepository.save(race);
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byRaceId(authentication, #id)")
     public void delete(@PathVariable Long id) {
@@ -72,6 +76,7 @@ public class RaceController {
         this.raceRepository.deleteById(id);
     }
 
+    @Transactional
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byRaceId(authentication, #id)")
     public Race update(@RequestBody Race race, @PathVariable Long id) {

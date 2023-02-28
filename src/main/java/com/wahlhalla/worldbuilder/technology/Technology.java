@@ -28,7 +28,7 @@ public class Technology {
     @Column(name = "DESCRIPTION", length = 1024, nullable = false)
     private String description;
     @ManyToOne
-    @JsonIgnoreProperties({ "technologies" })
+    @JsonIgnoreProperties(value={ "technologies" }, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

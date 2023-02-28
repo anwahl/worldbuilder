@@ -25,7 +25,7 @@ public abstract class TimelineEvent {
     @Column(name = "DATE", nullable = false)
     private double date;
     @ManyToOne
-    @JsonIgnoreProperties({ "timelineEvents" })
+    @JsonIgnoreProperties(value={ "timelineEvents" }, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

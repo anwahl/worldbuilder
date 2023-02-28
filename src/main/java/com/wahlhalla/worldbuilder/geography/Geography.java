@@ -44,14 +44,14 @@ public class Geography {
     @ManyToMany(mappedBy = "geographies")
     private Set<Resource> resources = new HashSet<>();
     @ManyToOne
-    @JsonIgnoreProperties({ "childGeographies" })
+    @JsonIgnoreProperties(value={ "childGeographies" }, allowSetters = true)
     @JoinColumn(name = "PARENT_GEOGRAPHY_ID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Geography parentGeography;
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "parentGeography")
     private Set<Geography> childGeographies = new HashSet<>();
     @ManyToOne
-    @JsonIgnoreProperties({ "geographies" })
+    @JsonIgnoreProperties(value={ "geographies" }, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

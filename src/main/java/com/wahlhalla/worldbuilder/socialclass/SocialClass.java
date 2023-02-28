@@ -44,7 +44,7 @@ public class SocialClass {
     @OneToMany(mappedBy = "socialClass")
     private Set<Actor> actors = new HashSet<>();
     @ManyToOne
-    @JsonIgnoreProperties({ "regions" })
+    @JsonIgnoreProperties(value={ "socialClasses" }, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

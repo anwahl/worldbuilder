@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityIdMismatchException;
 import com.wahlhalla.worldbuilder.util.exceptions.EntityNotFoundException;
 
+import jakarta.transaction.Transactional;
+
 @RestController
 @RequestMapping("/api/region")
 public class RegionController {
@@ -83,6 +85,7 @@ public class RegionController {
         return this.regionRepository.findByNameContainingIgnoreCase(name);
     }
     
+    @Transactional
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
@@ -90,6 +93,7 @@ public class RegionController {
         return this.regionRepository.save(region);
     }
     
+    @Transactional
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byRegionId(authentication, #id)")
     public void delete(@PathVariable Long id) {
@@ -98,6 +102,7 @@ public class RegionController {
         this.regionRepository.deleteById(id);
     }
 
+    @Transactional
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byRegionId(authentication, #id)")
     public Region update(@RequestBody Region region, @PathVariable Long id) {

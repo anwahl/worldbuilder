@@ -28,7 +28,7 @@ public class Moon {
     @Column(name = "DESCRIPTION", length = 1024, nullable = false)
     private String description;
     @ManyToOne
-    @JsonIgnoreProperties({ "moons" })
+    @JsonIgnoreProperties(value={ "moons" }, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;
