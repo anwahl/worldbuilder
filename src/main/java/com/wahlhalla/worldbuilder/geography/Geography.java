@@ -19,6 +19,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -41,17 +42,22 @@ public class Geography {
     private GeographyType type;
     @Column(name = "CLIMATE", nullable = false)
     private Climate climate;
-    @ManyToMany(mappedBy = "geographies")
+    @ManyToMany
+    @JoinTable(
+        name = "GEOGRAPHY_RESOURCE", 
+        joinColumns = @JoinColumn(name = "GEOGRAPHY_ID"), 
+        inverseJoinColumns = @JoinColumn(name = "RESOURCE_ID"))
+    @JsonIgnoreProperties(value={ "geographies" }, allowSetters = true)
     private Set<Resource> resources = new HashSet<>();
     @ManyToOne
     @JsonIgnoreProperties(value={ "childGeographies" }, allowSetters = true)
     @JoinColumn(name = "PARENT_GEOGRAPHY_ID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Geography parentGeography;
-    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "parentGeography")
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.MERGE, mappedBy = "parentGeography")
     private Set<Geography> childGeographies = new HashSet<>();
     @ManyToOne
-    @JsonIgnoreProperties(value={ "geographies" }, allowSetters = true)
+    @JsonIgnoreProperties(value={"races","actors","languages","geographies","regions","politicalSystems","resources"}, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

@@ -33,14 +33,11 @@ public class Resource {
     private String name;
     @Column(name = "DESCRIPTION", length = 1024, nullable = false)
     private String description;
-    @ManyToMany
-    @JoinTable(
-        name = "GEOGRAPHY_RESOURCE", 
-        joinColumns = @JoinColumn(name = "RESOURCE_ID"), 
-        inverseJoinColumns = @JoinColumn(name = "GEOGRAPHY_ID"))
+    @ManyToMany(mappedBy = "resources")
+    @JsonIgnoreProperties(value={ "resources" }, allowSetters = true)
     private Set<Geography> geographies = new HashSet<>();
     @ManyToOne
-    @JsonIgnoreProperties(value={ "resources" }, allowSetters = true)
+    @JsonIgnoreProperties(value={"races","actors","languages","geographies","regions","politicalSystems","resources"}, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

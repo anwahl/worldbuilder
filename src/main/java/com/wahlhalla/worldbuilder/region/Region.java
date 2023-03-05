@@ -43,9 +43,9 @@ public class Region {
     @ManyToOne
     @JsonIgnoreProperties(value={ "childRegions" }, allowSetters = true)
     @JoinColumn(name = "JURISDICTION_ID", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Region jurisdiction;
-    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, mappedBy = "jurisdiction")
+    @OneToMany(mappedBy = "jurisdiction")
+    @JsonIgnoreProperties(value={ "jurisdiction" }, allowSetters = true)
     private Set<Region> childRegions = new HashSet<>();
     @ManyToOne
     @JsonIgnoreProperties(value={ "regions" }, allowSetters = true)
@@ -53,10 +53,10 @@ public class Region {
     private Geography geography;
     @ManyToOne
     @JsonIgnoreProperties(value={ "regions" }, allowSetters = true)
-    @JoinColumn(name = "POLITICAL_SYSTEM_ID", nullable = false)
+    @JoinColumn(name = "POLITICAL_SYSTEM_ID", nullable = true)
     private PoliticalSystem politicalSystem;
     @ManyToOne
-    @JsonIgnoreProperties(value={ "regions" }, allowSetters = true)
+    @JsonIgnoreProperties(value={"races","actors","languages","geographies","regions","politicalSystems","resources"}, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

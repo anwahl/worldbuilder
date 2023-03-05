@@ -38,7 +38,7 @@ public class Race {
     @OneToMany(mappedBy = "race")
     private Set<Actor> actors = new HashSet<>();
     @ManyToOne
-    @JsonIgnoreProperties(value = {"races","actors","languages"}, allowSetters = true)
+    @JsonIgnoreProperties(value = {"races","actors","languages","geographies","regions","politicalSystems","resources"}, allowSetters = true)
     @JoinColumn(name="WORLD_ID", nullable=false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

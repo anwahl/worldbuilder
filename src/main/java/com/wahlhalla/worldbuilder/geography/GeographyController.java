@@ -54,6 +54,13 @@ public class GeographyController {
         return this.geographyRepository.findByWorldId(worldId);
     }
 
+    @GetMapping("/world/exclude/{worldId}/{geographyId}")
+    @PreAuthorize("hasRole('ADMIN') or @checkUser.byWorldId(authentication, #worldId)"
+                  + " or @checkPrivacy.byWorldId(#worldId)")
+    public List<Geography> findByWorldIdExcluding(@PathVariable Long worldId, @PathVariable Long geographyId) {
+        return this.geographyRepository.findByWorldIdAndIdIsNot(worldId, geographyId);
+    }
+
     @GetMapping("/name/{name}")
     @PreAuthorize("hasRole('ADMIN')")
     public List<Geography> findByName(@PathVariable String name) {

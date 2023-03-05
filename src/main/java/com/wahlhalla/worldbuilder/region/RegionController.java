@@ -97,9 +97,13 @@ public class RegionController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @checkUser.byRegionId(authentication, #id)")
     public void delete(@PathVariable Long id) {
-        this.regionRepository.findById(id)
+        Region region = this.regionRepository.findById(id)
           .orElseThrow(EntityNotFoundException::new);
-        this.regionRepository.deleteById(id);
+        for (Region child : region.getChildRegions()) {
+            child.setJurisdiction(null);
+            this.regionRepository.save(child);
+        }
+        this.regionRepository.delete(region);
     }
 
     @Transactional
