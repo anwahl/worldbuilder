@@ -45,7 +45,7 @@ public class Actor {
     @JoinColumn(name = "RACE_ID", nullable = false)
     private Race race;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = { "actors","world" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "actors","world","race","region" }, allowSetters = true)
     @JoinColumn(name = "SOCIAL_CLASS_ID", nullable = true)
     private SocialClass socialClass;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -62,7 +62,7 @@ public class Actor {
         inverseJoinColumns = @JoinColumn(name = "LANGUAGE_ID"))
     private Set<Language> languages = new HashSet<>();
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = { "actors","languages" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {"races","actors","languages","geographies","regions","politicalSystems","resources", "socialClasses"}, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

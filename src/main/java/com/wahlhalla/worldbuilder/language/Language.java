@@ -36,7 +36,7 @@ public class Language {
     @ManyToMany(mappedBy = "languages")
     private Set<Actor> actors = new HashSet<>();
     @ManyToOne
-    @JsonIgnoreProperties(value={ "languages","actors" }, allowSetters = true)
+    @JsonIgnoreProperties(value={"races","actors","languages","geographies","regions","politicalSystems","resources", "socialClasses"}, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

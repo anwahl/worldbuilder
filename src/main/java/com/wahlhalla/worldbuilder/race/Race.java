@@ -34,11 +34,11 @@ public class Race {
     private String description;
     @Column(name="TRAIT", length=256, nullable=true)
     private String trait;
-    @JsonIgnoreProperties(value = {"race","world"}, allowSetters = true)
+    @JsonIgnoreProperties(value = {"race","world","socialClass"}, allowSetters = true)
     @OneToMany(mappedBy = "race")
     private Set<Actor> actors = new HashSet<>();
     @ManyToOne
-    @JsonIgnoreProperties(value = {"races","actors","languages","geographies","regions","politicalSystems","resources"}, allowSetters = true)
+    @JsonIgnoreProperties(value = {"races","actors","languages","geographies","regions","politicalSystems","resources", "socialClasses"}, allowSetters = true)
     @JoinColumn(name="WORLD_ID", nullable=false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

@@ -41,7 +41,7 @@ public class PoliticalSystem {
     @JsonIgnoreProperties(value={ "politicalSystems" }, allowSetters = true)
     private Set<Region> regions = new HashSet<>();
     @ManyToOne
-    @JsonIgnoreProperties(value={"races","actors","languages","geographies","regions","politicalSystems","resources"}, allowSetters = true)
+    @JsonIgnoreProperties(value={"races","actors","languages","geographies","regions","politicalSystems","resources", "socialClasses"}, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;

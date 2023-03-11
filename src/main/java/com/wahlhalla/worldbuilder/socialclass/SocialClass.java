@@ -36,15 +36,17 @@ public class SocialClass {
     @Column(name = "DESCRIPTION", length = 1024, nullable = false)
     private String description;
     @ManyToOne
+    @JsonIgnoreProperties(value={"socialClasses"})
     @JoinColumn(name = "REGION_ID", nullable = true)
     private Region region;
     @ManyToOne
+    @JsonIgnoreProperties(value={"socialClasses"})
     @JoinColumn(name = "RACE_ID", nullable = true)
     private Race race;
     @OneToMany(mappedBy = "socialClass")
     private Set<Actor> actors = new HashSet<>();
     @ManyToOne
-    @JsonIgnoreProperties(value={ "socialClasses" }, allowSetters = true)
+    @JsonIgnoreProperties(value={"races","actors","languages","geographies","regions","politicalSystems","resources", "socialClasses"}, allowSetters = true)
     @JoinColumn(name = "WORLD_ID", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private World world;
